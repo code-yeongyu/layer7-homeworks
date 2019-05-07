@@ -9,20 +9,23 @@
 #define UP_WARD 72
 #define DOWN_WARD 80
 
-enum direction {
+enum direction{
     NONE,
     LEFT,
     RIGHT,
     DOWN
 };
-enum blockState {
+enum blockState{
     EMPTY,
     SOFT_BLOCK,
     HARD_BLOCK,
     WALL
 };
+
 struct block {
-    int id, rotationState, y, x;
+    int id;
+    int rotationState;
+    int y, x;
 };
 
 const int blockShapes[7][4][4][4] = {
@@ -53,6 +56,7 @@ void gotoyx(int y, int x)
     COORD pos = { x, y };
     SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), pos);
 }
+
 void printMap(enum blockState (*map)[12]);
 void createRandomBlock(struct block* b);
 void drawPreparingBlock(struct block b);
@@ -70,10 +74,11 @@ void printStage(int stage);
 
 int main(void){
     int i, j, x, y, timer, score=0, stage=1, scoreForNextLevel=1500, speed=1000;
+    char name[100], resultSentence[130], path[200];
     struct block preparingBlock, currentBlock;
     enum blockState map[24][12] = { EMPTY };
 
-    /*setting up stage*/
+    //setting up stage
     for (i = 0; i < 12; i++) {
         map[23][i] = WALL;
     }
@@ -81,15 +86,14 @@ int main(void){
         map[i][0] = WALL;
         map[i][11] = WALL;
     }
-    /*setting up stage*/
 
-    srand(time(NULL));
-    /*removing cursor*/
     CONSOLE_CURSOR_INFO Curinfo;
     Curinfo.dwSize = 1;
     Curinfo.bVisible = 0;
     SetConsoleCursorInfo(GetStdHandle(STD_OUTPUT_HANDLE), &Curinfo);
-    /*removing cursor*/
+    //removing cursor
+
+    srand(time(NULL));
     printMap(map);
     printScore(score);
     printStage(stage);
@@ -102,7 +106,7 @@ int main(void){
         drawBlock(currentBlock, SOFT_BLOCK);
         for (;;) {
             timer = clock();
-            while (clock() - timer < 1000) {
+            while (clock() - timer < speed) {
                 while (kbhit()) {
                     eraseBlock(currentBlock);
                     switch (getch()) {
@@ -130,19 +134,22 @@ int main(void){
                 }
             }
             if (willMoveConflict(DOWN, map, currentBlock)) { //fixing block
-                for (i = currentBlock.y, y = 0; i < currentBlock.y + 4; i++, y++)
-                    for (j = currentBlock.x, x = 0; j < currentBlock.x + 4; j++, x++)
+                for (i = currentBlock.y, y = 0; i < currentBlock.y + 4; i++, y++) {
+                    for (j = currentBlock.x, x = 0; j < currentBlock.x + 4; j++, x++) {
                         if (blockShapes[currentBlock.id][currentBlock.rotationState][y][x])
                             map[i][j] = HARD_BLOCK;
+                    }
+                }
                 eraseBlock(currentBlock);
                 drawBlock(currentBlock, HARD_BLOCK);
                 scoreIfAble(map, &score, currentBlock.y);
                 printScore(score);
-                for(i = 1; i < 11; i++)
+
+                for(i = 1; i < 11; i++){
                     if(map[4][i] == HARD_BLOCK)
                         goto gameOver;
-                //check if it's game over
-                if(score >= scoreForNextLevel){ // changing stage
+                } //check if it's game over
+                if(score >= scoreForNextLevel){ // adding stage
                     scoreForNextLevel*=2;
                     printStage(++stage);
                     speed/=2;
@@ -156,9 +163,19 @@ int main(void){
             }
         }
     }
-
     gameOver:
-    gotoyx(30, 0);
+
+    system("cls");
+
+    printf("Your score is: %d,\n and what is your name?\nType here: ", score);
+    scanf("%100s", name);
+    printf("%s", name);
+    sprintf(resultSentence, "Score: %d, Name: %s\n", score, name);
+
+    FILE *fp;
+    fp = fopen("result.txt", "at");
+    fprintf(fp, resultSentence);
+    fclose(fp);
 
     return 0;
 }
@@ -166,7 +183,7 @@ int main(void){
 void printMap(enum blockState (*map)[12]){
     int i, j;
     for (i = 0; i < 24; i++) {
-        for (j = 0; j < 12; j++)
+        for (j = 0; j < 12; j++) {
             if (map[i][j] == EMPTY)
                 printf("  ");
             else if (map[i][j] == SOFT_BLOCK)
@@ -175,10 +192,10 @@ void printMap(enum blockState (*map)[12]){
                 printf("■");
             else if (map[i][j] == WALL)
                 printf("▒");
+        }
         puts("");
     }
 }
-
 void createRandomBlock(struct block* b){
     b->id = rand() % 7;
     b->rotationState = rand() % 4;
@@ -229,10 +246,13 @@ int willRotateConflict(enum blockState map[24][12], struct block b){
     int i, j, y, x;
     b.rotationState++;
     b.rotationState %= 4;
-    for (i = b.y, y = 0; i < b.y + 4; i++, y++)
-        for (j = b.x, x = 0; j < b.x + 4; j++, x++)
-            if (map[i][j] != 0 && blockShapes[b.id][b.rotationState][y][x] != 0)//if wall and falling block conflicts
+    for (i = b.y, y = 0; i < b.y + 4; i++, y++) {
+        for (j = b.x, x = 0; j < b.x + 4; j++, x++) {
+            if (map[i][j] != 0 && blockShapes[b.id][b.rotationState][y][x] != 0) { //if wall and falling block conflicts
                 return 1;
+            }
+        }
+    }
     return 0;
 }
 int willMoveConflict(enum direction way, enum blockState map[24][12], struct block b){
@@ -247,11 +267,14 @@ int willMoveConflict(enum direction way, enum blockState map[24][12], struct blo
         case DOWN:
             b.y++;
     }
-    for (i = b.y, y = 0; i < b.y + 4; i++, y++)
-        for (j = b.x, x = 0; j < b.x + 4; j++, x++)
-            if (map[i][j] != 0 && blockShapes[b.id][b.rotationState][y][x] == 1) //if wall and falling block conflicts
+    for (i = b.y, y = 0; i < b.y + 4; i++, y++) {
+        for (j = b.x, x = 0; j < b.x + 4; j++, x++) {
+            if (map[i][j] != 0 && blockShapes[b.id][b.rotationState][y][x] == 1) { //if wall and falling block conflicts
                 return 1;
-    return 0;
+            }
+        }
+    }
+    return NONE;
 }
 void moveBlock(enum direction way, struct block* b){
     switch (way) {
@@ -267,23 +290,27 @@ void moveBlock(enum direction way, struct block* b){
 }
 void putBlockToMap(enum blockState (*map)[12], struct block b){
     int i, j, y, x;
-    for (i = b.y, y = 0; i < b.y + 4; i++, y++)
-        for (j = b.x, x = 0; j < b.x + 4; j++, x++)
+    for (i = b.y, y = 0; i < b.y + 4; i++, y++) {
+        for (j = b.x, x = 0; j < b.x + 4; j++, x++) {
             if (blockShapes[b.id][b.rotationState][y][x] && map[i][j] != 0)
                 map[i][j] = blockShapes[b.id][b.rotationState][y][x];
+        }
+    }
 }
 void destroyLine(enum blockState (*map)[12], int line){
     int i, j;
     for(i = line; i != 2;i--)
-        for(j = 1; j <= 10; j++)
+        for(j = 1; j <= 10; j++){
             map[i][j] = map[i-1][j];
+        }
 }
 void scoreIfAble(enum blockState (*map)[12], int *score, int y){
     int i, j, counter, numOfFullLines=0;
     for(i = y; i < y+4; i++){
-        for(j = 1, counter=0; j <= 10; j++)
+        for(j = 1, counter=0; j <= 10; j++) {
             if(map[i][j] == HARD_BLOCK)
                 counter++;
+        }
         if(counter == 10){
             destroyLine(map, i);
             rePrintMapTo(map, i);
@@ -297,12 +324,15 @@ void scoreIfAble(enum blockState (*map)[12], int *score, int y){
     else if(numOfFullLines > 3)
         numOfFullLines+=4;
 
-    if(numOfFullLines>3)
+    if(numOfFullLines>3){
         numOfFullLines+=3;
-    else if(numOfFullLines>2)
+    }
+    else if(numOfFullLines>2){
         numOfFullLines+=2;
-    else if(numOfFullLines>1)
+    }
+    else if(numOfFullLines>1){
         numOfFullLines+=1;
+    }
 
     (*score) += 100*numOfFullLines;
 }
@@ -313,7 +343,7 @@ void rePrintMapTo(enum blockState (*map)[12], int y){
         Sleep(1);
         printf("□");
     }
-    for (i = 1; i <= y; i++)
+    for (i = 1; i <= y; i++) {
         for (j = 1; j < 11; j++) {
             gotoyx(i, j*2);
             if (map[i][j] == EMPTY)
@@ -321,6 +351,7 @@ void rePrintMapTo(enum blockState (*map)[12], int y){
             else if (map[i][j] == HARD_BLOCK)
                 printf("■");
         }
+    }
 }
 void printScore(int score){
     gotoyx(8, 24);
