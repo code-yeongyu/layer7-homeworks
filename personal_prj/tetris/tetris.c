@@ -68,12 +68,14 @@ int willMoveConflict(enum direction way, enum blockState map[24][12], struct blo
 void moveBlock(enum direction way, struct block* b);
 void putBlockToMap(enum blockState (*map)[12], struct block b);
 void destroyLine(enum blockState (*map)[12], int line);
-void scoreIfAble(enum blockState (*map)[12], int y);
+void scoreIfAble(enum blockState (*map)[12], int *score, int y);
+void rePrintMapTo(enum blockState (*map)[12], int y);
+void printScore(int score);
 
 
 int main(void)
 {
-    int i, j, x, y, timer;
+    int i, j, x, y, timer, score=0;
     struct block preparingBlock, currentBlock;
     enum blockState map[24][12] = { EMPTY };
 
@@ -142,7 +144,8 @@ int main(void)
                 }
                 eraseBlock(currentBlock);
                 drawBlock(currentBlock, HARD_BLOCK);
-                scoreIfAble(map, currentBlock.y);
+                scoreIfAble(map, &score, currentBlock.y);
+                printScore(score);
                 break;
             } else { //moving block down
                 eraseBlock(currentBlock);
@@ -180,7 +183,7 @@ void createRandomBlock(struct block* b)
     b->id = rand() % 7;
     b->rotationState = rand() % 4;
     b->y = 3;
-    b->x = 3;
+    b->x = 4;
 }
 void drawPreparingBlock(struct block b)
 {
@@ -291,8 +294,8 @@ void destroyLine(enum blockState (*map)[12], int line){
             map[i][j] = map[i-1][j];
         }
 }
-void scoreIfAble(enum blockState (*map)[12], int y){
-    int i, j, counter;
+void scoreIfAble(enum blockState (*map)[12], int *score, int y){
+    int i, j, counter, numOfFullLines=0;
     for(i = y; i < y+4; i++){
         for(j = 1, counter=0; j <= 10; j++) {
             if(map[i][j] == HARD_BLOCK)
@@ -300,17 +303,46 @@ void scoreIfAble(enum blockState (*map)[12], int y){
         }
         if(counter == 10){
             destroyLine(map, i);
-            system("cls");
-            printMap(map);
+            rePrintMapTo(map, i);
+            numOfFullLines++;
         }
     }
+    if(numOfFullLines > 1)
+        numOfFullLines+=2;
+    else if(numOfFullLines > 2)
+        numOfFullLines+=3;
+    else if(numOfFullLines > 3)
+        numOfFullLines+=4;
+
+    (*score) += 100*numOfFullLines;
+}
+
+void rePrintMapTo(enum blockState (*map)[12], int y){
+    int i, j;
+    for (i = 1; i < 11; i++) {
+        gotoyx(y, i*2);
+        Sleep(1);
+        printf("□");
+    }
+    for (i = 1; i <= y; i++) {
+        for (j = 1; j < 11; j++) {
+            gotoyx(i, j*2);
+            if (map[i][j] == EMPTY)
+                printf("  ");
+            else if (map[i][j] == HARD_BLOCK)
+                printf("■");
+        }
+    }
+}
+
+void printScore(int score){
+    gotoyx(8, 24);
+    printf("Score: %d", score);
 }
 
 
 /*
     todo:
-        파괴된 것에 따라 재 출력
-        점수
         떨어지는 속도 줄이기
         사망
 */
