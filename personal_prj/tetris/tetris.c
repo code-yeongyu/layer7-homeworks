@@ -52,18 +52,13 @@ const int blockShapes[7][4][4][4] = {
         0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0
 };
 
-void removeCursor()
-{
-    CONSOLE_CURSOR_INFO curinfo;
-    curinfo.bVisible = 0;
-    GetConsoleCursorInfo(GetStdHandle(STD_OUTPUT_HANDLE), &curinfo);
-}
 void gotoyx(int y, int x)
 {
     COORD pos = { x, y };
     SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), pos);
 }
 
+void printMap(enum blockState (*map)[12]);
 void createRandomBlock(struct block* b);
 void drawPreparingBlock(struct block b);
 void drawBlock(struct block b, enum blockState type);
@@ -72,14 +67,22 @@ int willRotateConflict(enum blockState map[24][12], struct block b);
 int willMoveConflict(enum direction way, enum blockState map[24][12], struct block b);
 void moveBlock(enum direction way, struct block* b);
 void putBlockToMap(enum blockState (*map)[12], struct block b);
+void destroyLine(enum blockState (*map)[12], int line);
 void scoreIfAble(enum blockState (*map)[12], int y);
+
 
 int main(void)
 {
     int i, j, x, y, timer;
     struct block preparingBlock, currentBlock;
-
     enum blockState map[24][12] = { EMPTY };
+
+    CONSOLE_CURSOR_INFO Curinfo;
+    Curinfo.dwSize = 1;
+    Curinfo.bVisible = 0;
+    SetConsoleCursorInfo(GetStdHandle(STD_OUTPUT_HANDLE), &Curinfo);
+    //removing cursor
+
     srand(time(NULL));
 
     /*setting up stage*/
@@ -92,21 +95,7 @@ int main(void)
     }
     /*setting up stage*/
 
-    /*printing map*/
-    for (i = 0; i < 24; i++) {
-        for (j = 0; j < 12; j++) {
-            if (map[i][j] == EMPTY)
-                printf("  ");
-            else if (map[i][j] == SOFT_BLOCK)
-                printf("□");
-            else if (map[i][j] == HARD_BLOCK)
-                printf("■");
-            else if (map[i][j] == WALL)
-                printf("▒");
-        }
-        puts("");
-    }
-    /*printing Map*/
+    printMap(map);
 
     createRandomBlock(&preparingBlock);
 
@@ -144,7 +133,6 @@ int main(void)
                     putBlockToMap(map, currentBlock);
                 }
             }
-            Sleep(1);
             if (willMoveConflict(DOWN, map, currentBlock)) { //fixing block
                 for (i = currentBlock.y, y = 0; i < currentBlock.y + 4; i++, y++) {
                     for (j = currentBlock.x, x = 0; j < currentBlock.x + 4; j++, x++) {
@@ -156,7 +144,7 @@ int main(void)
                 drawBlock(currentBlock, HARD_BLOCK);
                 scoreIfAble(map, currentBlock.y);
                 break;
-            } else { //move block down
+            } else { //moving block down
                 eraseBlock(currentBlock);
                 moveBlock(DOWN, &currentBlock);
                 drawBlock(currentBlock, SOFT_BLOCK);
@@ -168,6 +156,23 @@ int main(void)
     gotoyx(30, 0);
 
     return 0;
+}
+
+void printMap(enum blockState (*map)[12]){
+    int i, j;
+    for (i = 0; i < 24; i++) {
+        for (j = 0; j < 12; j++) {
+            if (map[i][j] == EMPTY)
+                printf("  ");
+            else if (map[i][j] == SOFT_BLOCK)
+                printf("□");
+            else if (map[i][j] == HARD_BLOCK)
+                printf("■");
+            else if (map[i][j] == WALL)
+                printf("▒");
+        }
+        puts("");
+    }
 }
 
 void createRandomBlock(struct block* b)
@@ -279,30 +284,31 @@ void putBlockToMap(enum blockState (*map)[12], struct block b)
         }
     }
 }
-void scoreIfAble(enum blockState (*map)[12], int y)
-{
+void destroyLine(enum blockState (*map)[12], int line){
+    int i, j;
+    for(i = line; i != 2;i--)
+        for(j = 1; j <= 10; j++){
+            map[i][j] = map[i-1][j];
+        }
+}
+void scoreIfAble(enum blockState (*map)[12], int y){
     int i, j, counter;
-    //int* scoreLines = (int*)malloc(sizeof(int));
-    for (i = y; i < y + 4; i++) {
-        for (j = 1, counter=0; j < 11; j++){
-            if (map[i][j] == WALL)
+    for(i = y; i < y+4; i++){
+        for(j = 1, counter=0; j <= 10; j++) {
+            if(map[i][j] == HARD_BLOCK)
                 counter++;
         }
-        gotoyx(40+y+i, 0);
-        printf("line: %d, counter: %d", i, counter);
+        if(counter == 10){
+            destroyLine(map, i);
+            system("cls");
+            printMap(map);
+        }
     }
-    /*for (i = 0; i < sizeof(scoreLines) / sizeof(int); i++) {
-        for (int j = 1; j < 11; j++)
-            map[scoreLines[i]][j] = 0;
-        for (j = scoreLines[i]; j > 4; j--)
-            map[i][j] = map[i - 1][j];
-    }
-    free(scoreLines);*/
 }
+
 
 /*
     todo:
-        줄 파괴
         파괴된 것에 따라 재 출력
         점수
         떨어지는 속도 줄이기
