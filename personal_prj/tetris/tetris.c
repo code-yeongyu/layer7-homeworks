@@ -1,7 +1,6 @@
 #include <Windows.h>
 #include <conio.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include <time.h>
 
 #define LEFT_WARD 75
@@ -57,7 +56,7 @@ void gotoyx(int y, int x)
     SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), pos);
 }
 
-void printMap(enum blockState (*map)[12]);
+void printMap(enum blockState map[24][12]);
 void createRandomBlock(struct block* b);
 void drawPreparingBlock(struct block b);
 void drawBlock(struct block b, enum blockState type);
@@ -167,15 +166,16 @@ int main(void){
 
     system("cls");
 
-    printf("Your score is: %d,\n and what is your name?\nType here: ", score);
+    printf("Your score is: %d,\nand what is your name?\nType here: ", score);
     scanf("%100s", name);
-    printf("%s", name);
     sprintf(resultSentence, "Score: %d, Name: %s\n", score, name);
 
     FILE *fp;
     fp = fopen("result.txt", "at");
     fprintf(fp, resultSentence);
     fclose(fp);
+
+    system("pause");
 
     return 0;
 }
