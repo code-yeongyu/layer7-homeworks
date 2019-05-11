@@ -80,7 +80,7 @@ void printStage(int stage);
 int main(void){
     system("cls");
 
-    int i, j, x, y, timer, score=0, stage=1, scoreForNextLevel=1500, speed=1000;
+    int i, j, x, y, timer, score=0, stage=1, scoreForNextLevel=1500, speed=1000, isHold=0;
     char *name, *resultSentence, *path;
 
     struct block preparingBlock, currentBlock, temp, holdingBlock;
@@ -114,6 +114,7 @@ int main(void){
         createRandomBlock(&preparingBlock);
         drawPreparingBlock(preparingBlock);
         drawBlock(currentBlock, SOFT_BLOCK);
+        drawHoldingBlock(holdingBlock);
         for (;;) {
             timer = clock();
             while (clock() - timer < speed) {
@@ -140,12 +141,21 @@ int main(void){
                             }
                             break;
                         case HOLD_KEY_C:
-                            temp = holdingBlock;
-                            holdingBlock = currentBlock;
-                            if(holdingBlock.id == 8){
-                                goto loadNextBlock;
-                            }else{
-                                currentBlock = temp;
+                            if(!isHold){
+                                isHold = 1;
+                                temp = holdingBlock;
+                                holdingBlock = currentBlock;
+                                holdingBlock.y = 3;
+                                holdingBlock.x = 4;
+                                if(temp.id == 7){
+                                    drawHoldingBlock(holdingBlock);
+                                    eraseBlock(currentBlock);
+                                    goto loadNextBlock;
+                                }
+                                currentBlock=temp;
+                                drawHoldingBlock(holdingBlock);
+                                eraseBlock(currentBlock);
+                                drawBlock(currentBlock, SOFT_BLOCK);
                             }
                             break;
                         case HARD_DROP_SPACE:
@@ -153,24 +163,27 @@ int main(void){
                             while(!willMoveConflict(DOWN, map, currentBlock))
                                 moveBlock(DOWN, &currentBlock);
                             drawBlock(currentBlock, HARD_BLOCK);
-                            goto loadNextBlock;
+                            goto loadNextBlockAndFix;
                     }
                     drawBlock(currentBlock, SOFT_BLOCK);
                     putBlockToMap(map, currentBlock);
                 }
             }
             if (willMoveConflict(DOWN, map, currentBlock)) { //fixing block
-                loadNextBlock:
+                loadNextBlockAndFix:
                 for (i = currentBlock.y, y = 0; i < currentBlock.y + 4; i++, y++) {
                     for (j = currentBlock.x, x = 0; j < currentBlock.x + 4; j++, x++) {
                         if (blockShapes[currentBlock.id][currentBlock.rotationState][y][x])
                             map[i][j] = HARD_BLOCK;
                     }
                 }
+
                 eraseBlock(currentBlock);
                 drawBlock(currentBlock, HARD_BLOCK);
+                loadNextBlock:
+                isHold = 0;
                 scoreIfAble(map, &score, currentBlock.y);
-                printScore(score);
+
 
                 for(i = 1; i < 11; i++)
                     if(map[4][i] == HARD_BLOCK)
@@ -181,6 +194,7 @@ int main(void){
                     printStage(++stage);
                     speed/=2;
                 }
+                printScore(score);
                 break;
             } else { //moving block down
                 eraseBlock(currentBlock);
