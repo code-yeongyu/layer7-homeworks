@@ -32,25 +32,25 @@ struct block {
 };
 
 const int blockShapes[8][4][4][4] = {
-        // ■
-        // ■ ■ ■
+        //■
+        //■ ■ ■
         0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0,
-        //     ■
-        // ■ ■ ■
+        //    ■
+        //■ ■ ■
         0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0,
-        // ■ ■
-        // ■ ■
+        //■ ■
+        //■ ■
         0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0,
-        // ■ ■ ■ ■
+        //■ ■ ■ ■
         0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0,
-        //   ■
-        // ■ ■ ■
+        //  ■
+        //■ ■ ■
         0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0,
-        // ■ ■
-        //   ■ ■
-        0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0,
-        //    ■ ■
+        //■ ■
         //  ■ ■
+        0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0,
+        //   ■ ■
+        // ■ ■
         0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 };
@@ -67,7 +67,7 @@ void drawPreparingBlock(struct block b);
 void drawHoldingBlock(struct block b);
 void drawBlock(struct block b, enum blockState type);
 void eraseBlock(struct block b);
-int willRotateConflict(enum blockState map[24][12], struct block b);
+int isNowConflict(enum blockState map[24][12], struct block b);
 int willMoveConflict(enum direction way, enum blockState map[24][12], struct block b);
 void moveBlock(enum direction way, struct block* b);
 void putBlockToMap(enum blockState (*map)[12], struct block b);
@@ -80,7 +80,7 @@ void printStage(int stage);
 int main(void){
     system("cls");
 
-    int i, j, x, y, timer, score=0, stage=1, scoreForNextLevel=1500, speed=1000, isHold=0;
+    int i, j, x, y, timer, score=0, stage=1, scoreForNextLevel=1500, speed=1000, isHold=0, *cacheForRotation;
     char *name, *resultSentence, *path;
 
     struct block preparingBlock, currentBlock, temp, holdingBlock;
@@ -133,12 +133,29 @@ int main(void){
                             if (!willMoveConflict(DOWN, map, currentBlock))
                                 moveBlock(DOWN, &currentBlock);
                             break;
-                        case UP_WARD: //change block
-                            if (!willRotateConflict(map, currentBlock)) {
+                        case UP_WARD: //rotate block
+                            cacheForRotation = malloc(sizeof(int));
+                            *cacheForRotation = currentBlock.rotationState;
+                            currentBlock.rotationState++;
+                            currentBlock.rotationState %= 4;
+                            if (isNowConflict(map, currentBlock))
+                                currentBlock.rotationState = *cacheForRotation;
+                            else
                                 eraseBlock(currentBlock);
-                                currentBlock.rotationState++;
-                                currentBlock.rotationState %= 4;
-                            }
+                            free(cacheForRotation);
+                            break;
+                        case SPIN_KEY_Z:
+                            cacheForRotation = malloc(sizeof(int));
+                            *cacheForRotation = currentBlock.rotationState;
+                            if(!currentBlock.rotationState)
+                                currentBlock.rotationState = 3;
+                            else
+                                currentBlock.rotationState--;
+                            if (isNowConflict(map, currentBlock))
+                                currentBlock.rotationState = *cacheForRotation;
+                            else
+                                eraseBlock(currentBlock);
+                            free(cacheForRotation);
                             break;
                         case HOLD_KEY_C:
                             if(!isHold){
@@ -170,13 +187,14 @@ int main(void){
                 }
             }
             if (willMoveConflict(DOWN, map, currentBlock)) { //fixing block
+                timer = clock();
+                while (clock() - timer < 1000-speed);
                 loadNextBlockAndFix:
-                for (i = currentBlock.y, y = 0; i < currentBlock.y + 4; i++, y++) {
-                    for (j = currentBlock.x, x = 0; j < currentBlock.x + 4; j++, x++) {
+                for (i = currentBlock.y, y = 0; i < currentBlock.y + 4; i++, y++)
+                    for (j = currentBlock.x, x = 0; j < currentBlock.x + 4; j++, x++)
                         if (blockShapes[currentBlock.id][currentBlock.rotationState][y][x])
                             map[i][j] = HARD_BLOCK;
-                    }
-                }
+                //put hard block to map
 
                 eraseBlock(currentBlock);
                 drawBlock(currentBlock, HARD_BLOCK);
@@ -189,7 +207,7 @@ int main(void){
                     if(map[4][i] == HARD_BLOCK)
                         goto gameOver;
                 //check if it's game over
-                if(score >= scoreForNextLevel){ // adding stage
+                if(score >= scoreForNextLevel){ //adding stage
                     scoreForNextLevel*=2;
                     printStage(++stage);
                     speed/=2;
@@ -306,17 +324,12 @@ void eraseBlock(struct block b){
             blockShapes[b.id][b.rotationState][y][x] == SOFT_BLOCK ? printf("  ") : gotoyx(i, j + 2);
         }
 }
-int willRotateConflict(enum blockState map[24][12], struct block b){
+int isNowConflict(enum blockState map[24][12], struct block b){
     int i, j, y, x;
-    b.rotationState++;
-    b.rotationState %= 4;
-    for (i = b.y, y = 0; i < b.y + 4; i++, y++) {
-        for (j = b.x, x = 0; j < b.x + 4; j++, x++) {
-            if (map[i][j] != EMPTY && blockShapes[b.id][b.rotationState][y][x] != SOFT_BLOCK) { //if wall and falling block conflicts
+    for (i = b.y, y = 0; i < b.y + 4; i++, y++)
+        for (j = b.x, x = 0; j < b.x + 4; j++, x++)
+            if (map[i][j] != EMPTY && blockShapes[b.id][b.rotationState][y][x] != SOFT_BLOCK)//if wall and falling block conflicts
                 return 1;
-            }
-        }
-    }
     return 0;
 }
 int willMoveConflict(enum direction way, enum blockState map[24][12], struct block b){
