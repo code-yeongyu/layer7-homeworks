@@ -79,10 +79,13 @@ void printStage(int stage);
 
 int main(void){
     system("cls");
-    int i, j, x, y, timer, score=0, stage=1, scoreForNextLevel=1500, speed=1000, isHoldUsed = 0;
+
+    int i, j, x, y, timer, score=0, stage=1, scoreForNextLevel=1500, speed=1000;
     char *name, *resultSentence, *path;
 
-    struct block preparingBlock, currentBlock, holdingBlock;
+    struct block preparingBlock, currentBlock, temp, holdingBlock;
+    holdingBlock.id = 7;
+    holdingBlock.rotationState = 0;
     enum blockState map[24][12] = { EMPTY };
 
     //setting up stage
@@ -103,16 +106,13 @@ int main(void){
     printMap(map);
     printScore(score);
     printStage(stage);
+    drawHoldingBlock(holdingBlock);
     createRandomBlock(&preparingBlock);
-
-    holdingBlock.id = 7;
-    holdingBlock.rotationState = 0;
 
     for (;;) {
         currentBlock = preparingBlock;
         createRandomBlock(&preparingBlock);
         drawPreparingBlock(preparingBlock);
-        drawHoldingBlock(holdingBlock);
         drawBlock(currentBlock, SOFT_BLOCK);
         for (;;) {
             timer = clock();
@@ -132,34 +132,26 @@ int main(void){
                             if (!willMoveConflict(DOWN, map, currentBlock))
                                 moveBlock(DOWN, &currentBlock);
                             break;
-                        case UP_WARD: //rotate block
+                        case UP_WARD: //change block
                             if (!willRotateConflict(map, currentBlock)) {
                                 eraseBlock(currentBlock);
                                 currentBlock.rotationState++;
                                 currentBlock.rotationState %= 4;
                             }
                             break;
-                        case HOLD_KEY_C: //hold
-                            if(!isHoldUsed){ //changing block
-                                currentBlock.y = 3;
-                                currentBlock.x = 4;
-                                struct block temp;
-                                temp = holdingBlock;
-                                holdingBlock = currentBlock;
-                                if(holdingBlock.id == 7)//first time to changing block
-                                    goto loadNextBlock;
-                                else{
-                                    currentBlock = temp;
-                                    drawHoldingBlock(holdingBlock);
-                                }
-                                isHoldUsed = 1;
+                        case HOLD_KEY_C:
+                            temp = holdingBlock;
+                            holdingBlock = currentBlock;
+                            if(holdingBlock.id == 8){
+                                goto loadNextBlock;
+                            }else{
+                                currentBlock = temp;
                             }
                             break;
-                        case HARD_DROP_SPACE: //hard drop
+                        case HARD_DROP_SPACE:
+                            eraseBlock(currentBlock);
                             while(!willMoveConflict(DOWN, map, currentBlock))
                                 moveBlock(DOWN, &currentBlock);
-                            eraseBlock(currentBlock);
-                            putBlockToMap(map, currentBlock);
                             drawBlock(currentBlock, HARD_BLOCK);
                             goto loadNextBlock;
                     }
@@ -168,11 +160,13 @@ int main(void){
                 }
             }
             if (willMoveConflict(DOWN, map, currentBlock)) { //fixing block
-
-                for (i = currentBlock.y, y = 0; i < currentBlock.y + 4; i++, y++)
-                    for (j = currentBlock.x, x = 0; j < currentBlock.x + 4; j++, x++)
+                loadNextBlock:
+                for (i = currentBlock.y, y = 0; i < currentBlock.y + 4; i++, y++) {
+                    for (j = currentBlock.x, x = 0; j < currentBlock.x + 4; j++, x++) {
                         if (blockShapes[currentBlock.id][currentBlock.rotationState][y][x])
                             map[i][j] = HARD_BLOCK;
+                    }
+                }
                 eraseBlock(currentBlock);
                 drawBlock(currentBlock, HARD_BLOCK);
                 scoreIfAble(map, &score, currentBlock.y);
@@ -185,10 +179,8 @@ int main(void){
                 if(score >= scoreForNextLevel){ // adding stage
                     scoreForNextLevel*=2;
                     printStage(++stage);
-                    speed/=1.8;
+                    speed/=2;
                 }
-                loadNextBlock:
-                isHoldUsed = 0;
                 break;
             } else { //moving block down
                 eraseBlock(currentBlock);
