@@ -187,8 +187,6 @@ int main(void){
                 }
             }
             if (willMoveConflict(DOWN, map, currentBlock)) { //fixing block
-                timer = clock();
-                while (clock() - timer < 1000-speed);
                 loadNextBlockAndFix:
                 for (i = currentBlock.y, y = 0; i < currentBlock.y + 4; i++, y++)
                     for (j = currentBlock.x, x = 0; j < currentBlock.x + 4; j++, x++)
