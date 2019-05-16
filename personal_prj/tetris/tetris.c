@@ -120,7 +120,6 @@ int main(void){
             while (clock() - timer < speed) {
                 Sleep(1);
                 while (kbhit()) {
-                    Sleep(1);
                     eraseBlock(currentBlock);
                     switch (getch()) {
                         case LEFT_WARD: //move left
