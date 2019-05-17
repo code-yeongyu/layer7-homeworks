@@ -31,22 +31,22 @@ struct block {
 };
 
 const int blockShapes[8][4][4][4] = {
-        //■
-        //■ ■ ■
+        // ■
+        // ■ ■ ■
         0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0,
-        //    ■
-        //■ ■ ■
+        //     ■
+        // ■ ■ ■
         0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0,
-        //■ ■
-        //■ ■
+        // ■ ■
+        // ■ ■
         0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0,
-        //■ ■ ■ ■
+        // ■ ■ ■ ■
         0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0,
-        //  ■
-        //■ ■ ■
+        //   ■
+        // ■ ■ ■
         0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0,
-        //■ ■
-        //  ■ ■
+        // ■ ■
+        //   ■ ■
         0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0,
         //   ■ ■
         // ■ ■
@@ -76,7 +76,7 @@ void printStage(int stage);
 
 int main(void) {
     int i, j, x, y, timer, score = 0, stage = 1, scoreForNextLevel = 1500, speed = 1000, isHold, *cacheForRotation;
-    char *name, *resultSentence, *path;
+    char *name, *resultSentence;
     struct block preparingBlock, currentBlock, temp, holdingBlock;
     enum blockState map[24][12] = {EMPTY};
     
@@ -113,7 +113,7 @@ int main(void) {
         for (;;) {
             timer = clock();
             while (clock() - timer < speed) {
-                Sleep(1); //hack for optimization
+                Sleep(1); // hack for optimization
                 while (kbhit()) {
                     eraseBlock(currentBlock);
                     switch (getch()) {
@@ -204,6 +204,7 @@ int main(void) {
         }
     }
     gameOver:
+
     name = malloc(100);
     resultSentence = malloc(130);
     path = malloc(200);
@@ -211,11 +212,10 @@ int main(void) {
     system("cls");
 
     printf("Your score is: %d,\nand what is your name?\nType here: ", score);
-    scanf("%99s", name);
+    scanf("%100s", name);
     sprintf(resultSentence, "Score: %d, Name: %s\n", score, name);
 
     free(name);
-    free(path);
 
     FILE *fp;
     fp = fopen("result.txt", "at");
