@@ -52,7 +52,8 @@ const int blockShapes[8][4][4][4] = {
         // ■ ■
         0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0,
         // a block for nothing(for hold feature)
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+};
 
 void gotoyx(int y, int x) {
     COORD pos = {x, y};
@@ -77,7 +78,7 @@ void printStage(int stage);
 int main(void) {
     int i, j, x, y, timer, score = 0, stage = 1, scoreForNextLevel = 1500, speed = 1000, isHold, *cacheForRotation;
     char *name, *resultSentence;
-    struct block preparingBlock, currentBlock, temp, holdingBlock;
+    struct block preparingBlock, currentBlock, blockCache, holdingBlock;
     enum blockState map[24][12] = {EMPTY};
     
     system("cls");
@@ -87,15 +88,14 @@ int main(void) {
     SetConsoleCursorInfo(GetStdHandle(STD_OUTPUT_HANDLE), &Curinfo);
     // removing cursor
     
-    holdingBlock.id = 7;
-    holdingBlock.rotationState = 0;
-
     for (i = 0; i < 12; i++)
         map[23][i] = WALL;
     for (i = 0; i < 24; i++) {
         map[i][0] = WALL;
         map[i][11] = WALL;
     }
+    holdingBlock.id = 7;
+    holdingBlock.rotationState = 0;
     srand(time(NULL));
     printMap(map);
     printStage(stage);
@@ -156,14 +156,14 @@ int main(void) {
                         case HOLD_KEY_C:
                             if (!isHold) {
                                 isHold = 1;
-                                temp = holdingBlock;
+                                blockCache = holdingBlock;
                                 holdingBlock = currentBlock;
                                 holdingBlock.y = 3;
                                 holdingBlock.x = 4;
                                 drawHoldingBlock(holdingBlock);
-                                if (temp.id == 7)
+                                if (blockCache.id == 7)
                                     goto loadNextBlock;
-                                currentBlock = temp;
+                                currentBlock = blockCache;
                             }
                             break;
                         case HARD_DROP_SPACE:
@@ -204,7 +204,6 @@ int main(void) {
         }
     }
     gameOver:
-
     name = malloc(100);
     resultSentence = malloc(130);
     
@@ -237,8 +236,6 @@ void printMap(enum blockState (*map)[12]) {
                 printf("■");
             else if (map[i][j] == WALL)
                 printf("▒");
-            else if (map[i][j] == SOFT_BLOCK) // for debugging
-                printf("□");
         puts("");
     }
 }
@@ -279,7 +276,7 @@ void drawHoldingBlock(struct block b) {
     drawBlock(b, SOFT_BLOCK);
 }
 void drawBlock(struct block b, enum blockState type) {
-    int i, j, y, x = 0;
+    int i, j, y, x;
     for (i = b.y, y = 0; i < b.y + 4; i++, y++)
         for (j = b.x * 2, x = 0; j < b.x * 2 + 8; j += 2, x++) {
             gotoyx(i, j);
@@ -345,7 +342,6 @@ void scoreIfAble(enum blockState (*map)[12], int *score, int y) {
             numOfFullLines++;
         }
     }
-
     if (numOfFullLines > 3)
         numOfFullLines += 3;
     else if (numOfFullLines > 2)
@@ -357,7 +353,6 @@ void scoreIfAble(enum blockState (*map)[12], int *score, int y) {
 }
 void rePrintMapTo(enum blockState (*map)[12], int y) {
     int i, j, timer;
-
     for (i = 1; i < 11; i++) {
         timer = clock();
         while (clock() - timer < 20);
