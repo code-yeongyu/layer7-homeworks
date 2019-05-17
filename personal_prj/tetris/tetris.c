@@ -207,8 +207,7 @@ int main(void) {
 
     name = malloc(100);
     resultSentence = malloc(130);
-    path = malloc(200);
-
+    
     system("cls");
 
     printf("Your score is: %d,\nand what is your name?\nType here: ", score);
