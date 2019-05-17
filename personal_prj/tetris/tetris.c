@@ -75,12 +75,17 @@ void printScore(int score);
 void printStage(int stage);
 
 int main(void) {
-    system("cls");
-
     int i, j, x, y, timer, score = 0, stage = 1, scoreForNextLevel = 1500, speed = 1000, isHold, *cacheForRotation;
     char *name, *resultSentence, *path;
     struct block preparingBlock, currentBlock, temp, holdingBlock;
     enum blockState map[24][12] = {EMPTY};
+    
+    system("cls");
+	CONSOLE_CURSOR_INFO Curinfo;
+    Curinfo.dwSize = 1;
+    Curinfo.bVisible = 0;
+    SetConsoleCursorInfo(GetStdHandle(STD_OUTPUT_HANDLE), &Curinfo);
+    // removing cursor
     
     holdingBlock.id = 7;
     holdingBlock.rotationState = 0;
@@ -96,12 +101,6 @@ int main(void) {
     printStage(stage);
     createRandomBlock(&preparingBlock);
     // setting up stage
-
-    CONSOLE_CURSOR_INFO Curinfo;
-    Curinfo.dwSize = 1;
-    Curinfo.bVisible = 0;
-    SetConsoleCursorInfo(GetStdHandle(STD_OUTPUT_HANDLE), &Curinfo);
-    // removing cursor
 
     for (;;) {
         currentBlock = preparingBlock;
@@ -205,7 +204,6 @@ int main(void) {
         }
     }
     gameOver:
-
     name = malloc(100);
     resultSentence = malloc(130);
     path = malloc(200);
@@ -213,7 +211,7 @@ int main(void) {
     system("cls");
 
     printf("Your score is: %d,\nand what is your name?\nType here: ", score);
-    scanf("%100s", name);
+    scanf("%99s", name);
     sprintf(resultSentence, "Score: %d, Name: %s\n", score, name);
 
     free(name);
@@ -236,12 +234,12 @@ void printMap(enum blockState (*map)[12]) {
         for (j = 0; j < 12; j++)
             if (map[i][j] == EMPTY)
                 printf("  ");
-            else if (map[i][j] == SOFT_BLOCK)
-                printf("□");
             else if (map[i][j] == HARD_BLOCK)
                 printf("■");
             else if (map[i][j] == WALL)
                 printf("▒");
+            else if (map[i][j] == SOFT_BLOCK) // for debugging
+                printf("□");
         puts("");
     }
 }
@@ -315,22 +313,8 @@ int isNowConflict(enum blockState map[24][12], struct block b) {
     return 0;
 }
 int willMoveConflict(enum direction way, enum blockState map[24][12], struct block b) {
-    int i, j, y, x;
-    switch (way) {
-        case LEFT:
-            b.x--;
-            break;
-        case RIGHT:
-            b.x++;
-            break;
-        case DOWN:
-            b.y++;
-    }
-    for (i = b.y, y = 0; i < b.y + 4; i++, y++)
-        for (j = b.x, x = 0; j < b.x + 4; j++, x++)
-            if (map[i][j] != EMPTY && blockShapes[b.id][b.rotationState][y][x]) // if wall and falling block conflicts
-                return 1;
-    return 0;
+    moveBlock(way, &b);
+    return isNowConflict(map, b);
 }
 void moveBlock(enum direction way, struct block *b) {
     switch (way) {
