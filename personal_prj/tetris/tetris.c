@@ -77,20 +77,24 @@ void printStage(int stage);
 int main(void) {
     system("cls");
 
-    int i, j, x, y, timer, score = 0, stage = 1, scoreForNextLevel = 1500, speed = 1000, isHold = 0, *cacheForRotation;
+    int i, j, x, y, timer, score = 0, stage = 1, scoreForNextLevel = 1500, speed = 1000, isHold, *cacheForRotation;
     char *name, *resultSentence, *path;
-
     struct block preparingBlock, currentBlock, temp, holdingBlock;
+    enum blockState map[24][12] = {EMPTY};
+    
     holdingBlock.id = 7;
     holdingBlock.rotationState = 0;
 
-    enum blockState map[24][12] = {EMPTY};
     for (i = 0; i < 12; i++)
         map[23][i] = WALL;
     for (i = 0; i < 24; i++) {
         map[i][0] = WALL;
         map[i][11] = WALL;
     }
+    srand(time(NULL));
+    printMap(map);
+    printStage(stage);
+    createRandomBlock(&preparingBlock);
     // setting up stage
 
     CONSOLE_CURSOR_INFO Curinfo;
@@ -99,19 +103,14 @@ int main(void) {
     SetConsoleCursorInfo(GetStdHandle(STD_OUTPUT_HANDLE), &Curinfo);
     // removing cursor
 
-    srand(time(NULL));
-    printMap(map);
-    printScore(score);
-    printStage(stage);
-    drawHoldingBlock(holdingBlock);
-    createRandomBlock(&preparingBlock);
-
     for (;;) {
         currentBlock = preparingBlock;
+        isHold = 0;
         createRandomBlock(&preparingBlock);
         drawPreparingBlock(preparingBlock);
         drawBlock(currentBlock, SOFT_BLOCK);
         drawHoldingBlock(holdingBlock);
+        printScore(score);
         for (;;) {
             timer = clock();
             while (clock() - timer < speed) {
@@ -162,22 +161,15 @@ int main(void) {
                                 holdingBlock = currentBlock;
                                 holdingBlock.y = 3;
                                 holdingBlock.x = 4;
-                                if (temp.id == 7) {
-                                    drawHoldingBlock(holdingBlock);
-                                    eraseBlock(currentBlock);
-                                    goto loadNextBlock;
-                                }
-                                currentBlock = temp;
                                 drawHoldingBlock(holdingBlock);
-                                eraseBlock(currentBlock);
-                                drawBlock(currentBlock, SOFT_BLOCK);
+                                if (temp.id == 7)
+                                    goto loadNextBlock;
+                                currentBlock = temp;
                             }
                             break;
                         case HARD_DROP_SPACE:
-                            eraseBlock(currentBlock);
                             while (!willMoveConflict(DOWN, map, currentBlock))
                                 moveBlock(DOWN, &currentBlock);
-                            drawBlock(currentBlock, HARD_BLOCK);
                             goto loadNextBlockAndFix;
                     }
                     drawBlock(currentBlock, SOFT_BLOCK);
@@ -190,26 +182,22 @@ int main(void) {
                         if (blockShapes[currentBlock.id][currentBlock.rotationState][y][x])
                             map[i][j] = HARD_BLOCK;
                 // put hard block to map
-
                 eraseBlock(currentBlock);
-                drawBlock(currentBlock, HARD_BLOCK);
-                loadNextBlock:
-                isHold = 0;
-                scoreIfAble(map, &score, currentBlock.y);
-
                 for (i = 1; i < 11; i++)
                     if (map[4][i] == HARD_BLOCK)
                         goto gameOver;
+                drawBlock(currentBlock, HARD_BLOCK);
+                
+				loadNextBlock:
+                scoreIfAble(map, &score, currentBlock.y);
                 // check if it's game over
                 if (score >= scoreForNextLevel) { // adding stage
                     scoreForNextLevel *= 2;
                     printStage(++stage);
                     speed /= 2;
                 }
-                printScore(score);
                 break;
-            }
-            else { // moving block down
+            } else { // moving block down
                 eraseBlock(currentBlock);
                 moveBlock(DOWN, &currentBlock);
                 drawBlock(currentBlock, SOFT_BLOCK);
@@ -264,7 +252,7 @@ void createRandomBlock(struct block *b) {
     b->x = 4;
 }
 void drawPreparingBlock(struct block b) {
-    int i, j;
+    int i;
     gotoyx(0, 22);
     printf("▒▒▒▒▒▒");
     for (i = 0; i < 4;) {
@@ -279,7 +267,7 @@ void drawPreparingBlock(struct block b) {
     drawBlock(b, SOFT_BLOCK);
 }
 void drawHoldingBlock(struct block b) {
-    int i, j;
+    int i;
     gotoyx(5, 22);
     printf("▒▒▒▒▒▒");
     for (i = 1; i < 5; i++) {
@@ -315,17 +303,14 @@ void eraseBlock(struct block b) {
     for (i = b.y, y = 0; i < b.y + 4; i++, y++)
         for (j = b.x * 2, x = 0; j < b.x * 2 + 8; j += 2, x++) {
             gotoyx(i, j);
-            blockShapes[b.id][b.rotationState][y][x] == SOFT_BLOCK ? printf("  ")
-                                                                   : gotoyx(i, j + 2);
+            blockShapes[b.id][b.rotationState][y][x] == SOFT_BLOCK ? printf("  ") : gotoyx(i, j + 2);
         }
 }
 int isNowConflict(enum blockState map[24][12], struct block b) {
     int i, j, y, x;
     for (i = b.y, y = 0; i < b.y + 4; i++, y++)
         for (j = b.x, x = 0; j < b.x + 4; j++, x++)
-            if (map[i][j] != EMPTY &&
-                blockShapes[b.id][b.rotationState][y][x] ==
-                SOFT_BLOCK) // if wall and falling block conflicts
+            if (map[i][j] != EMPTY && blockShapes[b.id][b.rotationState][y][x] == SOFT_BLOCK) // if wall and falling block conflicts
                 return 1;
     return 0;
 }
