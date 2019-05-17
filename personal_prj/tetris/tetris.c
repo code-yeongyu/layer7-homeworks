@@ -68,7 +68,6 @@ void eraseBlock(struct block b);
 int isNowConflict(enum blockState map[24][12], struct block b);
 int willMoveConflict(enum direction way, enum blockState map[24][12], struct block b);
 void moveBlock(enum direction way, struct block *b);
-void putBlockToMap(enum blockState (*map)[12], struct block b);
 void destroyLine(enum blockState (*map)[12], int line);
 void scoreIfAble(enum blockState (*map)[12], int *score, int y);
 void rePrintMapTo(enum blockState (*map)[12], int y);
@@ -121,7 +120,6 @@ int main(void) {
                     eraseBlock(currentBlock);
                     switch (getch()) {
                         case LEFT_WARD: // move left
-
                             if (!willMoveConflict(LEFT, map, currentBlock))
                                 moveBlock(LEFT, &currentBlock);
                             break;
@@ -164,8 +162,7 @@ int main(void) {
                                 holdingBlock = currentBlock;
                                 holdingBlock.y = 3;
                                 holdingBlock.x = 4;
-                                if (temp.id == 7)
-                                {
+                                if (temp.id == 7) {
                                     drawHoldingBlock(holdingBlock);
                                     eraseBlock(currentBlock);
                                     goto loadNextBlock;
@@ -184,7 +181,6 @@ int main(void) {
                             goto loadNextBlockAndFix;
                     }
                     drawBlock(currentBlock, SOFT_BLOCK);
-                    putBlockToMap(map, currentBlock);
                 }
             }
             if (willMoveConflict(DOWN, map, currentBlock)) { // fixing block
@@ -217,7 +213,6 @@ int main(void) {
                 eraseBlock(currentBlock);
                 moveBlock(DOWN, &currentBlock);
                 drawBlock(currentBlock, SOFT_BLOCK);
-                putBlockToMap(map, currentBlock);
             }
         }
     }
@@ -363,13 +358,6 @@ void moveBlock(enum direction way, struct block *b) {
         case DOWN:
             (b->y)++;
     }
-}
-void putBlockToMap(enum blockState (*map)[12], struct block b) {
-    int i, j, y, x;
-    for (i = b.y, y = 0; i < b.y + 4; i++, y++)
-        for (j = b.x, x = 0; j < b.x + 4; j++, x++)
-            if (blockShapes[b.id][b.rotationState][y][x] && map[i][j] != EMPTY)
-                map[i][j] = blockShapes[b.id][b.rotationState][y][x];
 }
 void destroyLine(enum blockState (*map)[12], int line) {
     int i, j;
