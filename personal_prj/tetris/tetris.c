@@ -223,7 +223,7 @@ int main(void) {
     resultSentence = malloc(130);
     system("cls");
     printf("Your score is: %d,\nand what is your name?\nType here: ", score);
-    scanf("%100s", name);
+    scanf("%99s", name);
     sprintf(resultSentence, "Score: %d, Name: %s\n", score, name);
     free(name);
     FILE *fp;
