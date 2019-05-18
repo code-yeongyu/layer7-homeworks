@@ -75,11 +75,10 @@ void printStage(int stage);
 void loadNextBlock(struct block *currentBlock, struct block *preparingBlock);
 
 int main(void) {
-    int i, j, x, y, timer, score = 0, stage = 1, scoreForNextLevel = 1500, speed = 1000, isHold, isGamePlayable=1, *cacheForRotation, *counter, *numOfScoreLines;
+    int i, j, x, y, timer, score = 0, stage = 1, scoreForNextLevel = 1500, speed = 1000, isHold, isGamePlayable=1, *cacheForRotation, *counter, *numOfScoreLines, keyInput;
     char *name, *resultSentence;
     struct block preparingBlock, currentBlock, blockCache, holdingBlock;
     enum blockState map[24][12] = {EMPTY};
-
     system("cls");
     CONSOLE_CURSOR_INFO Curinfo;
     Curinfo.dwSize = 1;
@@ -112,7 +111,7 @@ int main(void) {
     while(isGamePlayable) { // for whole game
         isHold = 0;
         loadNextBlock(&currentBlock, &preparingBlock);
-    	drawHoldingBlock(holdingBlock);
+        drawHoldingBlock(holdingBlock);
         drawBlock(currentBlock, SOFT_BLOCK);
         while (!willMoveConflict(DOWN, map, currentBlock)){ // for a falling block
             eraseBlock(currentBlock);
@@ -191,11 +190,10 @@ int main(void) {
         // put hard block to map
         eraseBlock(currentBlock);
         for (i = 1; i < 11; i++)
-            if (map[4][i] == HARD_BLOCK) {
+            if (map[4][i] == HARD_BLOCK) {// check if it's game over
                 isGamePlayable=0;
                 break;
             }
-        // check if it's game over
         drawBlock(currentBlock, HARD_BLOCK);
         counter = malloc(sizeof(int));
         numOfScoreLines = malloc(sizeof(int));
