@@ -106,7 +106,7 @@ int main(void) {
     printStage(stage);
     createRandomBlock(&preparingBlock);
     // setting up the stage
-    for (;;) {
+    for (;;) { // for whole game
         loadNextBlock:
         currentBlock = preparingBlock;
         isHold = 0;
@@ -115,7 +115,7 @@ int main(void) {
         drawBlock(currentBlock, SOFT_BLOCK);
         drawHoldingBlock(holdingBlock);
         printScore(score);
-        for (;;) {
+        for (;;) { // for a falling block
             timer = clock();
             while (clock() - timer < speed) {
                 Sleep(1); // hack for optimization
