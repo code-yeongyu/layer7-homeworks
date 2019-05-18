@@ -104,6 +104,8 @@ int main(void) {
         puts("");
     }
     printStage(stage);
+    printScore(score);
+    drawHoldingBlock(holdingBlock);
     createRandomBlock(&preparingBlock);
     // setting up the stage
     for (;;) { // for whole game
@@ -113,8 +115,6 @@ int main(void) {
         createRandomBlock(&preparingBlock);
         drawPreparingBlock(preparingBlock);
         drawBlock(currentBlock, SOFT_BLOCK);
-        drawHoldingBlock(holdingBlock);
-        printScore(score);
         for (;;) { // for a falling block
             timer = clock();
             while (clock() - timer < speed) {
