@@ -81,7 +81,7 @@ int main(void) {
     enum blockState map[24][12] = {EMPTY};
     
     system("cls");
-	CONSOLE_CURSOR_INFO Curinfo;
+    CONSOLE_CURSOR_INFO Curinfo;
     Curinfo.dwSize = 1;
     Curinfo.bVisible = 0;
     SetConsoleCursorInfo(GetStdHandle(STD_OUTPUT_HANDLE), &Curinfo);
