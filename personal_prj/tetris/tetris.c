@@ -107,10 +107,8 @@ int main(void) {
                 printf("▒");
         puts("");
     }
-    // printing the stage
-
     printStage(stage);
-    // setting up stage
+    // setting up the stage
 
     for (;;) {
         createRandomBlock(&preparingBlock);
