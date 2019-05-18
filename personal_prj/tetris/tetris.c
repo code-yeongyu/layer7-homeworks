@@ -69,24 +69,23 @@ int isNowConflict(enum blockState map[24][12], struct block b);
 int willMoveConflict(enum direction way, enum blockState map[24][12], struct block b);
 void moveBlock(enum direction way, struct block *b);
 void destroyLine(enum blockState (*map)[12], int line);
-void scoreIfAble(enum blockState (*map)[12], int *score, int y);
 void rePrintMapTo(enum blockState map[24][12], int y);
 void printScore(int score);
 void printStage(int stage);
+void loadNextBlock(struct block *currentBlock, struct block *preparingBlock);
 
 int main(void) {
-    int i, j, x, y, timer, score = 0, stage = 1, scoreForNextLevel = 1500, speed = 1000, isHold, *cacheForRotation;
+    int i, j, x, y, timer, score = 0, stage = 1, scoreForNextLevel = 1500, speed = 1000, isHold, isGamePlayable=1, *cacheForRotation, *counter, *numOfScoreLines;
     char *name, *resultSentence;
     struct block preparingBlock, currentBlock, blockCache, holdingBlock;
     enum blockState map[24][12] = {EMPTY};
-    
+
     system("cls");
     CONSOLE_CURSOR_INFO Curinfo;
     Curinfo.dwSize = 1;
     Curinfo.bVisible = 0;
     SetConsoleCursorInfo(GetStdHandle(STD_OUTPUT_HANDLE), &Curinfo);
     // removing cursor
-    
     for (i = 0; i < 12; i++)
         map[23][i] = WALL;
     for (i = 0; i < 24; i++) {
@@ -96,7 +95,6 @@ int main(void) {
     holdingBlock.id = 7;
     holdingBlock.rotationState = 0;
     srand(time(NULL));
-
     for (i = 0; i < 24; i++) {
         for (j = 0; j < 12; j++)
             if (map[i][j] == EMPTY)
@@ -108,18 +106,18 @@ int main(void) {
         puts("");
     }
     printStage(stage);
-    // setting up the stage
-
-    for (;;) {
-        createRandomBlock(&preparingBlock);
-        currentBlock = preparingBlock;
+    printScore(score);
+    createRandomBlock(&preparingBlock);
+    // setting up stage
+    while(isGamePlayable) { // for whole game
         isHold = 0;
-        createRandomBlock(&preparingBlock);
-        drawPreparingBlock(preparingBlock);
+        loadNextBlock(&currentBlock, &preparingBlock);
+    	drawHoldingBlock(holdingBlock);
         drawBlock(currentBlock, SOFT_BLOCK);
-        drawHoldingBlock(holdingBlock);
-        printScore(score);
-        for (;;) {
+        while (!willMoveConflict(DOWN, map, currentBlock)){ // for a falling block
+            eraseBlock(currentBlock);
+            moveBlock(DOWN, &currentBlock);
+            drawBlock(currentBlock, SOFT_BLOCK);
             timer = clock();
             while (clock() - timer < speed) {
                 Sleep(1); // hack for optimization
@@ -170,74 +168,78 @@ int main(void) {
                                 holdingBlock.y = 3;
                                 holdingBlock.x = 4;
                                 drawHoldingBlock(holdingBlock);
-                                if (blockCache.id == 7)
-                                    goto loadNextBlock;
+                                if (blockCache.id == 7) {
+                                    loadNextBlock(&currentBlock, &preparingBlock);
+                                    break;
+                                }
                                 currentBlock = blockCache;
                             }
                             break;
                         case HARD_DROP_SPACE:
                             while (!willMoveConflict(DOWN, map, currentBlock))
                                 moveBlock(DOWN, &currentBlock);
-                            goto loadNextBlockAndFix;
+                            timer = -1; // to stop the loop
                     }
                     drawBlock(currentBlock, SOFT_BLOCK);
                 }
             }
-            if (willMoveConflict(DOWN, map, currentBlock)) { // fixing block
-                loadNextBlockAndFix:
-                for (i = currentBlock.y, y = 0; i < currentBlock.y + 4; i++, y++)
-                    for (j = currentBlock.x, x = 0; j < currentBlock.x + 4; j++, x++)
-                        if (blockShapes[currentBlock.id][currentBlock.rotationState][y][x])
-                            map[i][j] = HARD_BLOCK;
-                // put hard block to map
-                eraseBlock(currentBlock);
-                for (i = 1; i < 11; i++)
-                    if (map[4][i] == HARD_BLOCK)
-                        goto gameOver;
-                drawBlock(currentBlock, HARD_BLOCK);
-                
-				loadNextBlock:
-                scoreIfAble(map, &score, currentBlock.y);
-                // check if it's game over
-                if (score >= scoreForNextLevel) { // adding stage
-                    scoreForNextLevel *= 2;
-                    printStage(++stage);
-                    speed /= 2;
-                }
+        }
+        for (i = currentBlock.y, y = 0; i < currentBlock.y + 4; i++, y++)
+            for (j = currentBlock.x, x = 0; j < currentBlock.x + 4; j++, x++)
+                if (blockShapes[currentBlock.id][currentBlock.rotationState][y][x])
+                    map[i][j] = HARD_BLOCK;
+        // put hard block to map
+        eraseBlock(currentBlock);
+        for (i = 1; i < 11; i++)
+            if (map[4][i] == HARD_BLOCK) {
+                isGamePlayable=0;
                 break;
-            } else { // moving block down
-                eraseBlock(currentBlock);
-                moveBlock(DOWN, &currentBlock);
-                drawBlock(currentBlock, SOFT_BLOCK);
+            }
+        // check if it's game over
+        drawBlock(currentBlock, HARD_BLOCK);
+        counter = malloc(sizeof(int));
+        numOfScoreLines = malloc(sizeof(int));
+        for (i = currentBlock.y, *numOfScoreLines = 0; i < currentBlock.y + 4; i++) {
+            for (j = 1, *counter = 0; j <= 10; j++)
+                if (map[i][j] == HARD_BLOCK)
+                    (*counter)++;
+            if ((*counter) == 10) { // check if it's able to score
+                destroyLine(map, i);
+                rePrintMapTo(map, i);
+                (*numOfScoreLines)++;
             }
         }
+        if(*numOfScoreLines) { // if able to score
+            score += 100 * ((*numOfScoreLines)*2 - 1); // 100 * lines + bonus score
+            printScore(score);
+            if (score >= scoreForNextLevel) { // adding stage
+                scoreForNextLevel *= 2;
+                printStage(++stage);
+                speed /= 2;
+            }
+        }
+        free(counter);
+        free(numOfScoreLines);
     }
-    gameOver:
     name = malloc(100);
     resultSentence = malloc(130);
-    
     system("cls");
-
     printf("Your score is: %d,\nand what is your name?\nType here: ", score);
     scanf("%100s", name);
     sprintf(resultSentence, "Score: %d, Name: %s\n", score, name);
-
     free(name);
-
     FILE *fp;
     fp = fopen("result.txt", "at");
     fprintf(fp, resultSentence);
     free(resultSentence);
     fclose(fp);
-
     system("pause");
-
     return 0;
 }
 void createRandomBlock(struct block *b) {
     b->id = rand() % 7;
     b->rotationState = rand() % 4;
-    b->y = 3;
+    b->y = 2;
     b->x = 4;
 }
 void drawPreparingBlock(struct block b) {
@@ -325,27 +327,6 @@ void destroyLine(enum blockState (*map)[12], int line) {
         for (j = 1; j <= 10; j++)
             map[i][j] = map[i - 1][j];
 }
-void scoreIfAble(enum blockState (*map)[12], int *score, int y) {
-    int i, j, counter, numOfFullLines = 0;
-    for (i = y; i < y + 4; i++) {
-        for (j = 1, counter = 0; j <= 10; j++)
-            if (map[i][j] == HARD_BLOCK)
-                counter++;
-        if (counter == 10) {
-            destroyLine(map, i);
-            rePrintMapTo(map, i);
-            numOfFullLines++;
-        }
-    }
-    if (numOfFullLines > 3)
-        numOfFullLines += 3;
-    else if (numOfFullLines > 2)
-        numOfFullLines += 2;
-    else if (numOfFullLines > 1)
-        numOfFullLines += 1;
-
-    (*score) += 100 * numOfFullLines;
-}
 void rePrintMapTo(enum blockState map[24][12], int y) {
     int i, j, timer;
     for (i = 1; i < 11; i++) {
@@ -370,4 +351,9 @@ void printScore(int score) {
 void printStage(int stage) {
     gotoyx(16, 26);
     printf("Stage: %d", stage);
+}
+void loadNextBlock(struct block *currentBlock, struct block *preparingBlock){
+    *currentBlock = *preparingBlock;
+    createRandomBlock(preparingBlock);
+    drawPreparingBlock(*preparingBlock);
 }
