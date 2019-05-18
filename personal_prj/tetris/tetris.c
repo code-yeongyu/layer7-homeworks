@@ -220,7 +220,7 @@ int main(void) {
         free(numOfScoreLines);
     }
     name = malloc(100);
-    resultSentence = malloc(130);
+    resultSentence = malloc(155);
     system("cls");
     printf("Your score is: %d,\nand what is your name?\nType here: ", score);
     scanf("%99s", name);

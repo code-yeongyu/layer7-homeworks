@@ -108,8 +108,8 @@ int main(void) {
     // setting up the stage
     for (;;) { // for whole game
         loadNextBlock:
-        currentBlock = preparingBlock;
         isHold = 0;
+        currentBlock = preparingBlock;
         createRandomBlock(&preparingBlock);
         drawPreparingBlock(preparingBlock);
         drawBlock(currentBlock, SOFT_BLOCK);
@@ -224,7 +224,7 @@ int main(void) {
     }
     gameOver:
     name = malloc(100);
-    resultSentence = malloc(130);
+    resultSentence = malloc(155);
     system("cls");
     printf("Your score is: %d,\nand what is your name?\nType here: ", score);
     scanf("%99s", name);
