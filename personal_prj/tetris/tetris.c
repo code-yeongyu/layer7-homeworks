@@ -79,12 +79,15 @@ int main(void) {
     char *name, *resultSentence;
     struct block preparingBlock, currentBlock, blockCache, holdingBlock;
     enum blockState map[24][12] = {EMPTY};
+
     system("cls");
+
     CONSOLE_CURSOR_INFO Curinfo;
     Curinfo.dwSize = 1;
     Curinfo.bVisible = 0;
     SetConsoleCursorInfo(GetStdHandle(STD_OUTPUT_HANDLE), &Curinfo);
     // removing cursor
+
     for (i = 0; i < 12; i++)
         map[23][i] = WALL;
     for (i = 0; i < 24; i++) {
@@ -108,12 +111,13 @@ int main(void) {
     printScore(score);
     createRandomBlock(&preparingBlock);
     // setting up stage
-    while(isGamePlayable) { // for whole game
+
+    while(isGamePlayable) { // loop for whole game
         isHold = 0;
         loadNextBlock(&currentBlock, &preparingBlock);
         drawHoldingBlock(holdingBlock);
         drawBlock(currentBlock, SOFT_BLOCK);
-        while (!willMoveConflict(DOWN, map, currentBlock)){ // for a falling block
+        while (!willMoveConflict(DOWN, map, currentBlock)){ // loop for a falling block
             eraseBlock(currentBlock);
             moveBlock(DOWN, &currentBlock);
             drawBlock(currentBlock, SOFT_BLOCK);
