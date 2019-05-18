@@ -60,7 +60,6 @@ void gotoyx(int y, int x) {
     SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), pos);
 }
 
-void printMap(enum blockState map[24][12]);
 void createRandomBlock(struct block *b);
 void drawPreparingBlock(struct block b);
 void drawHoldingBlock(struct block b);
@@ -71,7 +70,7 @@ int willMoveConflict(enum direction way, enum blockState map[24][12], struct blo
 void moveBlock(enum direction way, struct block *b);
 void destroyLine(enum blockState (*map)[12], int line);
 void scoreIfAble(enum blockState (*map)[12], int *score, int y);
-void rePrintMapTo(enum blockState (*map)[12], int y);
+void rePrintMapTo(enum blockState map[24][12], int y);
 void printScore(int score);
 void printStage(int stage);
 
@@ -97,12 +96,24 @@ int main(void) {
     holdingBlock.id = 7;
     holdingBlock.rotationState = 0;
     srand(time(NULL));
-    printMap(map);
+
+    for (i = 0; i < 24; i++) {
+        for (j = 0; j < 12; j++)
+            if (map[i][j] == EMPTY)
+                printf("  ");
+            else if (map[i][j] == HARD_BLOCK)
+                printf("■");
+            else if (map[i][j] == WALL)
+                printf("▒");
+        puts("");
+    }
+    // printing the stage
+
     printStage(stage);
-    createRandomBlock(&preparingBlock);
     // setting up stage
 
     for (;;) {
+        createRandomBlock(&preparingBlock);
         currentBlock = preparingBlock;
         isHold = 0;
         createRandomBlock(&preparingBlock);
@@ -225,20 +236,6 @@ int main(void) {
 
     return 0;
 }
-
-void printMap(enum blockState (*map)[12]) {
-    int i, j;
-    for (i = 0; i < 24; i++) {
-        for (j = 0; j < 12; j++)
-            if (map[i][j] == EMPTY)
-                printf("  ");
-            else if (map[i][j] == HARD_BLOCK)
-                printf("■");
-            else if (map[i][j] == WALL)
-                printf("▒");
-        puts("");
-    }
-}
 void createRandomBlock(struct block *b) {
     b->id = rand() % 7;
     b->rotationState = rand() % 4;
@@ -351,7 +348,7 @@ void scoreIfAble(enum blockState (*map)[12], int *score, int y) {
 
     (*score) += 100 * numOfFullLines;
 }
-void rePrintMapTo(enum blockState (*map)[12], int y) {
+void rePrintMapTo(enum blockState map[24][12], int y) {
     int i, j, timer;
     for (i = 1; i < 11; i++) {
         timer = clock();
