@@ -101,8 +101,6 @@ int main(void) {
         for (j = 0; j < 12; j++)
             if (map[i][j] == EMPTY)
                 printf("  ");
-            else if (map[i][j] == HARD_BLOCK)
-                printf("■");
             else if (map[i][j] == WALL)
                 printf("▒");
         puts("");

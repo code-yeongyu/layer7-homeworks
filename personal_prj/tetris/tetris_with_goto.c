@@ -100,8 +100,6 @@ int main(void) {
         for (j = 0; j < 12; j++)
             if (map[i][j] == EMPTY)
                 printf("  ");
-            else if (map[i][j] == HARD_BLOCK)
-                printf("■");
             else if (map[i][j] == WALL)
                 printf("▒");
         puts("");
@@ -205,11 +203,11 @@ int main(void) {
                     if ((*counter) == 10) { // check if it's able to score
                         destroyLine(map, i);
                         rePrintMapTo(map, i);
-                        *numOfScoreLines++;
+                        (*numOfScoreLines)++;
                     }
                 }
                 if(*numOfScoreLines) { // if able to score
-                    score += 100 * (*numOfScoreLines)*2 - 1;
+                    score += 100 * ((*numOfScoreLines)*2 - 1);
                     printScore(score);
                     if (score >= scoreForNextLevel) { // adding stage
                         scoreForNextLevel *= 2;
